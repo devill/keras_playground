@@ -30,7 +30,7 @@ def train_model(trained_model, epoch = 1):
         target_size=(224, 224),
         class_mode='binary',
         shuffle=False,
-        batch_size=8
+        batch_size=16
     )
     train_batches = image.ImageDataGenerator(
         rotation_range=20,
@@ -45,7 +45,7 @@ def train_model(trained_model, epoch = 1):
         target_size=(224, 224),
         class_mode='binary',
         shuffle=True,
-        batch_size=16
+        batch_size=32
     )
     trained_model.fit_generator(train_batches,
                         samples_per_epoch=train_batches.nb_sample,
@@ -74,7 +74,7 @@ def build_model():
 
     seq_model.load_weights(INITIAL_WEIGHTS_FILE)
 
-    seq_model.compile(optimizer=Adam(), loss='binary_crossentropy', metrics=['accuracy'])
+    seq_model.compile(optimizer=Adam(lr=0.001), loss='binary_crossentropy', metrics=['accuracy'])
 
     return seq_model
 

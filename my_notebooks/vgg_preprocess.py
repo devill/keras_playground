@@ -43,9 +43,9 @@ model.compile(optimizer=Adam(lr=0.001),loss='categorical_crossentropy', metrics=
 
 def generate(type):
     global batch_size, batches, batch_count, f, batch_index, imgs, labels, preds, i
-    batch_size = 32
+    batch_size = 64
     batches = image.ImageDataGenerator().flow_from_directory(
-        '../example_data/dogscats/' + type,
+        '/data/dogscats/' + type,
         target_size=(224, 224),
         class_mode='binary',
         shuffle=False,
