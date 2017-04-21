@@ -24,14 +24,14 @@ def get_all_cards_for_hand_for_player(hand, player_index):
 
 def get_a_winning_hand(hand):
     all_cards = get_all_cards_for_hand_for_player(hand, hand['winner'])
-    split = random.randint(1,4)
+    split = random.randint(2,4)
     return np.concatenate((all_cards[:split],np.zeros((4-split, 13, 4))), axis=0)
 
 def get_a_loosing_hand(hand):
     index = random.randint(0, len(hand['hole_cards'])-2)
     index = index if index < hand['winner'] else index
     all_cards = get_all_cards_for_hand_for_player(hand, index)
-    split = random.randint(1,4)
+    split = random.randint(2,4)
     return np.concatenate((all_cards[:split],np.zeros((4-split, 13, 4))), axis=0)
     
     
@@ -88,16 +88,16 @@ opt = Nadam(lr=0.002, beta_1=0.9, beta_2=0.999, epsilon=1e-08, schedule_decay=0.
 model.compile(optimizer=opt,loss='binary_crossentropy', metrics=['accuracy'])
 
 
-train_generator = image.ImageDataGenerator().flow(train_inputs, train_outputs)
-test_generator = image.ImageDataGenerator().flow(test_inputs, test_outputs)
+train_generator = image.ImageDataGenerator().flow(train_inputs, train_outputs, batch_size=1024)
+test_generator = image.ImageDataGenerator().flow(test_inputs, test_outputs, batch_size=1024)
 
 
 model.fit_generator(
        train_generator, 
        samples_per_epoch=len(train_outputs),
-       nb_epoch=24, 
+       nb_epoch=12, 
        validation_data=test_generator, 
        nb_val_samples=len(test_outputs)
    )
 
-model.save_weights('/data/trained_models/poker/winning_probability_by_hands_v3.h5')
+model.save_weights('/data/trained_models/poker/winning_probability_by_hands_v4.h5')
