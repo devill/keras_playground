@@ -4,7 +4,7 @@ help:
 DATA?="${HOME}/Data"
 GPU?=0
 DOCKER_FILE=Dockerfile
-DOCKER=nvidia-docker
+DOCKER=GPU=$(GPU) nvidia-docker
 BACKEND=tensorflow
 TEST=tests/
 SRC=$(shell dirname `pwd`)
