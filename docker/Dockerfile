@@ -31,10 +31,11 @@ RUN conda install -y python=${python_version} && \
     pip install tensorflow-gpu && \
     conda install Pillow scikit-learn notebook pandas matplotlib mkl nose pyyaml six h5py && \
     conda install theano pygpu && \
-    conda install keras && \
     pip install git+git://github.com/fchollet/keras.git && \
     conda clean -yt && \
-    conda install bcolz
+    conda install bcolz && \ 
+    conda install beautifulsoup4 && \
+    conda install nltk
 
 ADD theanorc /home/keras/.theanorc
 
@@ -45,3 +46,4 @@ WORKDIR /src
 EXPOSE 8888
 
 CMD jupyter notebook --port=8888 --ip=0.0.0.0
+
