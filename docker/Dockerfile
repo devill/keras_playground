@@ -1,4 +1,4 @@
-FROM nvidia/cuda:8.0-cudnn5-devel
+FROM nvidia/cuda:8.0-cudnn6-devel
 
 ENV CONDA_DIR /opt/conda
 ENV PATH $CONDA_DIR/bin:$PATH
@@ -35,7 +35,8 @@ RUN conda install -y python=${python_version} && \
     conda clean -yt && \
     conda install bcolz && \ 
     conda install beautifulsoup4 && \
-    conda install nltk
+    conda install nltk && \
+    conda install -c conda-forge tqdm
 
 ADD theanorc /home/keras/.theanorc
 
