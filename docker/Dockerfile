@@ -36,7 +36,10 @@ RUN conda install -y python=${python_version} && \
     conda install bcolz && \ 
     conda install beautifulsoup4 && \
     conda install nltk && \
-    conda install -c conda-forge tqdm
+    conda install -c conda-forge tqdm && \
+    pip install xgboost
+
+RUN python -m nltk.downloader all
 
 ADD theanorc /home/keras/.theanorc
 
