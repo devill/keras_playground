@@ -19,7 +19,7 @@ class HandCraftedGomokuModel:
 
     def __score(self, me, enemy):
         enemy_mask = 1*(enemy == 0)
-        return np.sum(np.vectorize(lambda x: pow(4,x)/1024)(np.multiply(me, enemy_mask)))
+        return np.sum(np.vectorize(lambda x: pow(10,x)/100000)(np.multiply(me, enemy_mask)))
 
     def __search_mask(self, mask, me, enemy):
         enemy_mask = 1*(signal.convolve2d(enemy, mask, mode='same') == 0)

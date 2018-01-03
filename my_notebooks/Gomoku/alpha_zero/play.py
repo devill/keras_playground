@@ -10,7 +10,7 @@ shape=(19,19)
 
 def play():
     game = Gomoku(shape)
-    tree_search = MonteCarloTreeSearch(game, HandCraftedGomokuModel(), 2, 10)
+    tree_search = MonteCarloTreeSearch(game, HandCraftedGomokuModel(), 4, 5)
     results = []
 
     os.system('clear')
@@ -39,7 +39,7 @@ elif arg == 'generate':
         m.update(history.encode('utf-8'))
         h = m.hexdigest()
 
-        with open('/data/gomoku_alpha_zero/'+h+'.csv', 'w') as f:
+        with open('/data/gomoku_alpha_zero/4_5/'+h+'.csv', 'w') as f:
             f.write(history)
 
 else:
