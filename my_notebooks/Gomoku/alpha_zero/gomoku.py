@@ -10,7 +10,9 @@ class Gomoku:
 
     def reset(self):
         self.last_player = 1
-        self.board = np.stack((np.zeros(self.shape), np.zeros(self.shape),np.ones(self.shape)), axis=2)
+        base = np.ones(self.shape)
+        base[math.floor(self.shape[0]/2), math.floor(self.shape[1]/2)] += 1
+        self.board = np.stack((np.zeros(self.shape), np.zeros(self.shape),base), axis=2)
         self.action_stack = []
         self.group_map = np.zeros((2, self.shape[0], self.shape[1], 4))
         self.number_of_steps = 0
