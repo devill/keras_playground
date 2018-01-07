@@ -92,7 +92,7 @@ class Gomoku:
         for direction in [(0,1),(1,1),(1,0),(1,-1)]:
             c = self.__same_in_direction(action, direction)
             if c >= 5:
-                self.winner = 1 if self.last_player == 1 else -1
+                self.winner = 1 if self.last_player == 0 else -1
                 return
 
     def __same_in_direction(self, action, direction):
@@ -110,7 +110,7 @@ class Gomoku:
             cursor = (cursor[0] - direction[0], cursor[1] - direction[1])
             c += 1
 
-        return c
+        return c - 1
 
     def __valid_index(self, index):
         return index[0] >= 0 and index[0] < self.board.shape[0] and index[1] >= 0 and index[1] < self.board.shape[1]
