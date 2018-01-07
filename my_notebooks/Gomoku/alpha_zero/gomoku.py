@@ -4,8 +4,9 @@ import math
 
 class Gomoku:
 
-    def __init__(self, shape):
+    def __init__(self, shape, track_group_map = True):
         self.shape = shape
+        self.track_group_map = track_group_map
         self.reset()
 
     def reset(self):
@@ -16,6 +17,7 @@ class Gomoku:
         self.action_stack = []
         self.group_map = np.zeros((2, self.shape[0], self.shape[1], 4))
         self.number_of_steps = 0
+        self.winner = 0
 
     def draw(self):
         plt.imshow(self.board)
@@ -42,6 +44,9 @@ class Gomoku:
         return np.sum(self.board[:,:,0:2], axis=2)
 
     def take_action(self, action):
+        if self.winner != 0:
+            raise Exception('Action initiatied after game was already over')
+
         if np.sum(self.board[action][0:2]) > 0:
             raise Exception('Invalid action' + str(action))
 
@@ -49,33 +54,66 @@ class Gomoku:
         self.board[action][self.last_player] = 1
         self.number_of_steps += 1
 
-        self.__update_group_map(self.group_map[self.last_player], action)
+        self.__update_group_map(action)
+        self.__update_winner(action)
 
         self.action_stack.append(action)
 
     def revert(self):
         action = self.action_stack.pop()
         self.board[action][self.last_player] = 0
-        self.__update_group_map(self.group_map[self.last_player], action, -1)
+        self.__update_group_map(action, -1)
         self.number_of_steps -= 1
+        self.winner = 0
 
         self.last_player = 1 - self.last_player
 
 
-    def __update_group_map(self, gmap, action, direction = 1):
-        deltas = [
-            [-2,-2, 0],[-1,-1, 0],[ 0, 0, 0],[ 1, 1, 0],[ 2, 2, 0],
-            [-2, 0, 1],[-1, 0, 1],[ 0, 0, 1],[ 1, 0, 1],[ 2, 0, 1],
-            [-2, 2, 2],[-1, 1, 2],[ 0, 0, 2],[ 1,-1, 2],[ 2,-2, 2],
-            [ 0,-2, 3],[ 0,-1, 3],[ 0, 0, 3],[ 0, 1, 3],[ 0, 2, 3],
-        ]
+    def __update_group_map(self, action, direction = 1):
+        if self.track_group_map:
+            gmap = self.group_map[self.last_player]
 
-        for delta in deltas:
-            ax = action[0] + delta[0]
-            ay = action[1] + delta[1]
+            deltas = [
+                [-2,-2, 0],[-1,-1, 0],[ 0, 0, 0],[ 1, 1, 0],[ 2, 2, 0],
+                [-2, 0, 1],[-1, 0, 1],[ 0, 0, 1],[ 1, 0, 1],[ 2, 0, 1],
+                [-2, 2, 2],[-1, 1, 2],[ 0, 0, 2],[ 1,-1, 2],[ 2,-2, 2],
+                [ 0,-2, 3],[ 0,-1, 3],[ 0, 0, 3],[ 0, 1, 3],[ 0, 2, 3],
+            ]
 
-            if ax >= 0 and ax < self.shape[0] and ay >= 0 and ay < self.shape[1]:
-                gmap[ax, ay, delta[2]] += direction
+            for delta in deltas:
+                ax = action[0] + delta[0]
+                ay = action[1] + delta[1]
+
+                if ax >= 0 and ax < self.shape[0] and ay >= 0 and ay < self.shape[1]:
+                    gmap[ax, ay, delta[2]] += direction
+
+    def __update_winner(self, action):
+
+        for direction in [(0,1),(1,1),(1,0),(1,-1)]:
+            c = self.__same_in_direction(action, direction)
+            if c >= 5:
+                self.winner = 1 if self.last_player == 1 else -1
+                return
+
+    def __same_in_direction(self, action, direction):
+
+        last_players_pieces = self.board[:,:,self.last_player]
+        c = 0
+
+        cursor = action
+        while self.__valid_index(cursor) and last_players_pieces[cursor] == 1:
+            cursor = (cursor[0] + direction[0], cursor[1] + direction[1])
+            c += 1
+
+        cursor = action
+        while self.__valid_index(cursor) and last_players_pieces[cursor] == 1:
+            cursor = (cursor[0] - direction[0], cursor[1] - direction[1])
+            c += 1
+
+        return c
+
+    def __valid_index(self, index):
+        return index[0] >= 0 and index[0] < self.board.shape[0] and index[1] >= 0 and index[1] < self.board.shape[1]
 
     def get_last_action(self):
         return self.action_stack[-1]
@@ -118,26 +156,14 @@ class Gomoku:
         return result
 
     def game_over(self):
-        return self.won(0) or self.won(1) or np.sum(1-self.get_occupied()) == 0
+        return self.winner != 0 or np.sum(1-self.get_occupied()) == 0
 
     def winner(self):
-        if self.won(0):
-            return 1
-
-        if self.won(1):
-            return -1
-
-        return 0
+        return self.winner
 
     def winner_from_last_players_perspective(self):
-        if self.won(self.last_player):
-            return 1
+        if self.last_player == 0:
+            return self.winner
+        else:
+            return -1 * self.winner
 
-        if self.won(1 - self.last_player):
-            return -1
-
-        return 0
-
-
-    def won(self, player):
-        return np.count_nonzero(self.group_map[player] == 5)

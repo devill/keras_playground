@@ -8,9 +8,9 @@ import hashlib
 
 shape=(19,19)
 
-def play():
+def play(game_index = None):
     game = Gomoku(shape)
-    tree_search = MonteCarloTreeSearch(game, HandCraftedGomokuModel(), 4, 5)
+    tree_search = MonteCarloTreeSearch(game, HandCraftedGomokuModel(), 2, 10)
     results = []
 
     os.system('clear')
@@ -21,7 +21,11 @@ def play():
         game.take_action(result['action'])
 
         os.system('clear')
-        print(str(i) + " Outcome: " + str(result['outcome']) + "  Action: " + str(result['action']))
+        if game_index:
+            print(str(game_index) + " Outcome: " + str(result['outcome']) + "  Action: " + str(result['action']))
+        else:
+            print("Outcome: " + str(result['outcome']) + "  Action: " + str(result['action']))
+
         game.char_draw()
 
     return results
@@ -32,7 +36,7 @@ if arg == 'profile':
     cProfile.run('play()')
 elif arg == 'generate':
     for i in range(int(sys.argv[2])):
-        results = play()
+        results = play(i)
 
         history = "\n".join(list(map(lambda x: str(x['outcome']) +","+str(x['action'][0])+","+str(x['action'][1]), results)))
         m = hashlib.md5()
