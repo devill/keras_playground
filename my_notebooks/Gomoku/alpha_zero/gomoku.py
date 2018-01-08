@@ -4,9 +4,8 @@ import math
 
 class Gomoku:
 
-    def __init__(self, shape, track_group_map = True):
+    def __init__(self, shape):
         self.shape = shape
-        self.track_group_map = track_group_map
         self.reset()
 
     def reset(self):
@@ -15,7 +14,6 @@ class Gomoku:
         base[math.floor(self.shape[0]/2), math.floor(self.shape[1]/2)] += 1
         self.board = np.stack((np.zeros(self.shape), np.zeros(self.shape),base), axis=2)
         self.action_stack = []
-        self.group_map = np.zeros((2, self.shape[0], self.shape[1], 4))
         self.number_of_steps = 0
         self.winner = 0
 
@@ -54,7 +52,7 @@ class Gomoku:
         self.board[action][self.last_player] = 1
         self.number_of_steps += 1
 
-        self.__update_group_map(action)
+
         self.__update_winner(action)
 
         self.action_stack.append(action)
@@ -62,30 +60,11 @@ class Gomoku:
     def revert(self):
         action = self.action_stack.pop()
         self.board[action][self.last_player] = 0
-        self.__update_group_map(action, -1)
         self.number_of_steps -= 1
         self.winner = 0
 
         self.last_player = 1 - self.last_player
 
-
-    def __update_group_map(self, action, direction = 1):
-        if self.track_group_map:
-            gmap = self.group_map[self.last_player]
-
-            deltas = [
-                [-2,-2, 0],[-1,-1, 0],[ 0, 0, 0],[ 1, 1, 0],[ 2, 2, 0],
-                [-2, 0, 1],[-1, 0, 1],[ 0, 0, 1],[ 1, 0, 1],[ 2, 0, 1],
-                [-2, 2, 2],[-1, 1, 2],[ 0, 0, 2],[ 1,-1, 2],[ 2,-2, 2],
-                [ 0,-2, 3],[ 0,-1, 3],[ 0, 0, 3],[ 0, 1, 3],[ 0, 2, 3],
-            ]
-
-            for delta in deltas:
-                ax = action[0] + delta[0]
-                ay = action[1] + delta[1]
-
-                if ax >= 0 and ax < self.shape[0] and ay >= 0 and ay < self.shape[1]:
-                    gmap[ax, ay, delta[2]] += direction
 
     def __update_winner(self, action):
 
@@ -135,9 +114,6 @@ class Gomoku:
 
     def get_shape(self):
         return self.shape
-
-    def get_group_map(self):
-        return self.group_map
 
     def get_number_of_steps(self):
         return self.number_of_steps

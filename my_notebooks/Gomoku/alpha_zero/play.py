@@ -1,5 +1,5 @@
 import os
-from gomoku import Gomoku
+from gomoku_with_group_map import GomokuWithGroupMap
 from hand_crafted_gomoku_model import HandCraftedGomokuModel
 from monte_carlo_tree_search import MonteCarloTreeSearch
 import cProfile
@@ -9,7 +9,7 @@ import hashlib
 shape=(19,19)
 
 def play(game_index = None):
-    game = Gomoku(shape)
+    game = GomokuWithGroupMap(shape)
     tree_search = MonteCarloTreeSearch(game, HandCraftedGomokuModel(), 2, 10)
     results = []
 
