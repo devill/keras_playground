@@ -137,6 +137,9 @@ class Gomoku:
     def winner(self):
         return self.winner
 
+    def winner_from_current_players_perspective(self):
+        return -1 * self.winner_from_last_players_perspective()
+
     def winner_from_last_players_perspective(self):
         if self.last_player == 0:
             return self.winner
