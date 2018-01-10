@@ -16,8 +16,6 @@ class ParallelMonteCarloTreeSearch:
     def search(self, games):
 
 
-        pass
-
     def __search_outcomes(self, games, depth = 0):
         boards = []
         tasks = []
@@ -50,7 +48,11 @@ class ParallelMonteCarloTreeSearch:
 
             for task in tasks:
                 if task['task'] == 'take_action':
+                    game = task['game']
                     pmap = maps[task['board_index']]
+                    pmap = np.multiply(pmap, 1-game.get_occupied)
+                    pmap = pmap / np.sum(pmap)
+
                     actions = choice2d(pmap, self.max_branching)
                     task['range_from'] = len(next_games)
 
