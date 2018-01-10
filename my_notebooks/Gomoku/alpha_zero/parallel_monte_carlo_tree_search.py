@@ -31,15 +31,15 @@ class ParallelMonteCarloTreeSearch:
         if depth > self.max_depth:
             outcomes = self.model.get_prediced_outcomes(np.array(boards))
 
-            results =[]
+            best_outcomes =[]
 
             for task in tasks:
                 if task['task'] == 'take_action':
-                    results.append(-1*outcomes[task['board_index']])
+                    best_outcomes.append(-1*outcomes[task['board_index']])
                 else:
-                    results.append(task['result'])
+                    best_outcomes.append(task['result'])
 
-            return outcomes
+            return (outcomes,[None]*len(outcomes))
 
         else:
             maps = self.model.get_probability_maps(np.array(boards))
@@ -54,6 +54,7 @@ class ParallelMonteCarloTreeSearch:
                     pmap = pmap / np.sum(pmap)
 
                     actions = choice2d(pmap, self.max_branching)
+                    task['actions'] = actions
                     task['range_from'] = len(next_games)
 
                     for action in actions:
@@ -65,15 +66,18 @@ class ParallelMonteCarloTreeSearch:
 
             outcomes = self.__search_outcomes(next_games, depth + 1)
 
-            results = []
+            best_outcomes = []
+            best_actions = []
 
             for task in tasks:
                 if task['task'] == 'take_action':
-                    results.append(-1*max(outcomes[task['range_from']:task['range_to']]))
+                    best_outcomes.append(-1*max(outcomes[task['range_from']:task['range_to']]))
+                    best_actions.append(task['actions'][argmax(outcomes[task['range_from']:task['range_to']])])
                 else:
-                    results.append(task['result'])
+                    best_outcomes.append(task['result'])
+                    best_actions.append(None)
 
-            return results
+            return (best_outcomes, best_actions)
 
 
 
