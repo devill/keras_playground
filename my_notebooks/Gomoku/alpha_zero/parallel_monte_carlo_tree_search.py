@@ -14,7 +14,7 @@ class ParallelMonteCarloTreeSearch:
         self.max_branching = max_branching
 
     def search(self, games):
-
+        return self.__search_outcomes(games)
 
     def __search_outcomes(self, games, depth = 0):
         boards = []
