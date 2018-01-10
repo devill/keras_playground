@@ -19,23 +19,31 @@ class ParallelMonteCarloTreeSearch:
         pass
 
     def __search_outcomes(self, games, depth = 0):
-        if depth > self.max_depth:
-            outcomes = []
+        boards = []
+        tasks = []
 
-            #TODO
+        for game in games:
+            if game.game_over():
+                tasks.append({'task':'game_over', 'result': game.winner_from_current_players_perspective()})
+            else:
+                board = game.get_state_for_current_player()
+                tasks.append({'task':'take_action', 'board_index': len(board), 'game': game})
+                boards.append(board)
+
+        if depth > self.max_depth:
+            outcomes = self.model.get_prediced_outcomes(np.array(boards))
+
+            results =[]
+
+            for task in tasks:
+                if task['task'] == 'take_action':
+                    results.append(-1*outcomes[task['board_index']])
+                else:
+                    results.append(task['result'])
+
+            return outcomes
 
         else:
-            boards = []
-            tasks = []
-
-            for game in games:
-                if game.game_over():
-                    tasks.append({'task':'game_over', 'result': game.winner_from_current_players_perspective()})
-                else:
-                    board = game.get_state_for_current_player()
-                    tasks.append({'task':'take_action', 'board_index': len(board), 'game': game})
-                    boards.append(board)
-
             maps = self.model.get_probability_maps(np.array(boards))
 
             next_games = []
