@@ -25,11 +25,11 @@ class ParallelMonteCarloTreeSearch:
                 tasks.append({'task':'game_over', 'result': game.winner_from_current_players_perspective()})
             else:
                 board = game.get_state_for_current_player()
-                tasks.append({'task':'take_action', 'board_index': len(board), 'game': game})
+                tasks.append({'task':'take_action', 'board_index': len(boards), 'game': game})
                 boards.append(board)
 
         if depth > self.max_depth:
-            outcomes = self.model.get_prediced_outcomes(np.array(boards))
+            outcomes = self.model.get_predicted_outcomes(np.array(boards))
 
             best_outcomes =[]
 
@@ -37,9 +37,9 @@ class ParallelMonteCarloTreeSearch:
                 if task['task'] == 'take_action':
                     best_outcomes.append(-1*outcomes[task['board_index']])
                 else:
-                    best_outcomes.append(task['result'])
+                    best_outcomes.append(-1*task['result'])
 
-            return (outcomes,[None]*len(outcomes))
+            return (best_outcomes,[None]*len(best_outcomes))
 
         else:
             maps = self.model.get_probability_maps(np.array(boards))
@@ -50,7 +50,8 @@ class ParallelMonteCarloTreeSearch:
                 if task['task'] == 'take_action':
                     game = task['game']
                     pmap = maps[task['board_index']]
-                    pmap = np.multiply(pmap, 1-game.get_occupied)
+
+                    pmap = np.multiply(pmap, 1-game.get_occupied())
                     pmap = pmap / np.sum(pmap)
 
                     actions = choice2d(pmap, self.max_branching)
@@ -64,15 +65,18 @@ class ParallelMonteCarloTreeSearch:
 
                     task['range_to'] = len(next_games)
 
-            outcomes = self.__search_outcomes(next_games, depth + 1)
+            print(len(next_games))
+            outcomes, actions = self.__search_outcomes(next_games, depth + 1)
+            print(len(outcomes), len(next_games))
 
             best_outcomes = []
             best_actions = []
 
             for task in tasks:
                 if task['task'] == 'take_action':
+                    #print(task['range_from'], task['range_to'], len(outcomes), outcomes[task['range_from']:task['range_to']])
                     best_outcomes.append(-1*max(outcomes[task['range_from']:task['range_to']]))
-                    best_actions.append(task['actions'][argmax(outcomes[task['range_from']:task['range_to']])])
+                    best_actions.append(task['actions'][np.argmax(outcomes[task['range_from']:task['range_to']])])
                 else:
                     best_outcomes.append(task['result'])
                     best_actions.append(None)
