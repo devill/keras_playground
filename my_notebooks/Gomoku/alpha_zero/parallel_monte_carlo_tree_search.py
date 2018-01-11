@@ -37,7 +37,7 @@ class ParallelMonteCarloTreeSearch:
                 if task['task'] == 'take_action':
                     best_outcomes.append(-1*outcomes[task['board_index']])
                 else:
-                    best_outcomes.append(-1*task['result'])
+                    best_outcomes.append(task['result'])
 
             return (best_outcomes,[None]*len(best_outcomes))
 
@@ -65,9 +65,7 @@ class ParallelMonteCarloTreeSearch:
 
                     task['range_to'] = len(next_games)
 
-            print(len(next_games))
             outcomes, actions = self.__search_outcomes(next_games, depth + 1)
-            print(len(outcomes), len(next_games))
 
             best_outcomes = []
             best_actions = []
