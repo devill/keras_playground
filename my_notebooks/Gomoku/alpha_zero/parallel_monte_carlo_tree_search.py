@@ -5,7 +5,7 @@ def choice2d(pmap, count = 10):
     shape = pmap.shape
     indices = np.transpose(np.indices(shape), axes=(1,2,0)).reshape((shape[0]*shape[1],2))
     choice_indices = np.random.choice(len(indices), count, p=pmap.reshape(shape[0]*shape[1]))
-    return list(map(lambda x: tuple(x), indices[choice_indices].tolist()))
+    return list(set(map(lambda x: tuple(x), indices[choice_indices].tolist())))
 
 class ParallelMonteCarloTreeSearch:
     def __init__(self, model, max_depth = 5, max_branching = 15):
@@ -30,7 +30,8 @@ class ParallelMonteCarloTreeSearch:
 
         if depth > self.max_depth:
             if len(boards) > 0:
-                outcomes = self.model.get_predicted_outcomes(np.array(boards))
+                prediction = self.model.predict(np.array(boards))
+                outcomes = prediction['outcomes']
             else:
                 outcomes = []
 
@@ -38,7 +39,7 @@ class ParallelMonteCarloTreeSearch:
 
             for task in tasks:
                 if task['task'] == 'take_action':
-                    best_outcomes.append(-1*outcomes[task['board_index']])
+                    best_outcomes.append(outcomes[task['board_index']])
                 else:
                     best_outcomes.append(task['result'])
 
@@ -46,7 +47,8 @@ class ParallelMonteCarloTreeSearch:
 
         else:
             if len(boards) > 0:
-                maps = self.model.get_probability_maps(np.array(boards))
+                prediction = self.model.predict(np.array(boards))
+                maps = prediction['action_probability_maps']
             else:
                 maps = []
 
@@ -80,9 +82,8 @@ class ParallelMonteCarloTreeSearch:
 
             for task in tasks:
                 if task['task'] == 'take_action':
-                    #print(task['range_from'], task['range_to'], len(outcomes), outcomes[task['range_from']:task['range_to']])
-                    best_outcomes.append(-1*max(outcomes[task['range_from']:task['range_to']]))
-                    best_actions.append(task['actions'][np.argmax(outcomes[task['range_from']:task['range_to']])])
+                    best_outcomes.append(-1*min(outcomes[task['range_from']:task['range_to']]))
+                    best_actions.append(task['actions'][np.argmin(outcomes[task['range_from']:task['range_to']])])
                 else:
                     best_outcomes.append(task['result'])
                     best_actions.append(None)
