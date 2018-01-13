@@ -16,6 +16,12 @@ class ParallelMonteCarloTreeSearch:
     def search(self, games):
         return self.__search_outcomes(games)
 
+    def get_random_action(self, game):
+        valid_action_map = 1 - game.get_occupied()
+        valid_action_map = valid_action_map / np.sum(valid_action_map)
+        random_action = choice2d(valid_action_map, 1)[0]
+        return random_action
+
     def __search_outcomes(self, games, depth = 0):
         boards = []
         tasks = []
@@ -62,8 +68,9 @@ class ParallelMonteCarloTreeSearch:
                     pmap = np.multiply(pmap, 1-game.get_occupied())
                     pmap = pmap / np.sum(pmap)
 
-                    actions = choice2d(pmap, self.max_branching - 1)
+                    actions = choice2d(pmap, self.max_branching - 2)
                     actions.append(np.unravel_index(np.argmax(pmap), pmap.shape))
+                    actions.append(self.get_random_action(game))
 
                     task['actions'] = actions
                     task['range_from'] = len(next_games)
