@@ -5,7 +5,7 @@ def choice2d(pmap, count = 10):
     shape = pmap.shape
     indices = np.transpose(np.indices(shape), axes=(1,2,0)).reshape((shape[0]*shape[1],2))
     choice_indices = np.random.choice(len(indices), count, p=pmap.reshape(shape[0]*shape[1]))
-    return list(set(map(lambda x: tuple(x), indices[choice_indices].tolist())))
+    return list(map(lambda x: tuple(x), indices[choice_indices].tolist()))
 
 class ParallelMonteCarloTreeSearch:
     def __init__(self, model, max_depth = 5, max_branching = 15):
@@ -29,7 +29,10 @@ class ParallelMonteCarloTreeSearch:
                 boards.append(board)
 
         if depth > self.max_depth:
-            outcomes = self.model.get_predicted_outcomes(np.array(boards))
+            if len(boards) > 0:
+                outcomes = self.model.get_predicted_outcomes(np.array(boards))
+            else:
+                outcomes = []
 
             best_outcomes =[]
 
@@ -42,7 +45,10 @@ class ParallelMonteCarloTreeSearch:
             return (best_outcomes,[None]*len(best_outcomes))
 
         else:
-            maps = self.model.get_probability_maps(np.array(boards))
+            if len(boards) > 0:
+                maps = self.model.get_probability_maps(np.array(boards))
+            else:
+                maps = []
 
             next_games = []
 
@@ -54,7 +60,9 @@ class ParallelMonteCarloTreeSearch:
                     pmap = np.multiply(pmap, 1-game.get_occupied())
                     pmap = pmap / np.sum(pmap)
 
-                    actions = choice2d(pmap, self.max_branching)
+                    actions = choice2d(pmap, self.max_branching - 1)
+                    actions.append(np.unravel_index(np.argmax(pmap), pmap.shape))
+
                     task['actions'] = actions
                     task['range_from'] = len(next_games)
 
