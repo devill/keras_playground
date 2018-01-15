@@ -1,5 +1,6 @@
 import numpy as np
 from copy import deepcopy
+import random
 
 def choice2d(pmap, count = 10):
     shape = pmap.shape
@@ -68,9 +69,12 @@ class ParallelMonteCarloTreeSearch:
                     pmap = np.multiply(pmap, 1-game.get_occupied())
                     pmap = pmap / np.sum(pmap)
 
-                    actions = choice2d(pmap, self.max_branching - 2)
+                    actions = choice2d(pmap, self.max_branching - 1)
                     actions.append(np.unravel_index(np.argmax(pmap), pmap.shape))
-                    actions.append(self.get_random_action(game))
+
+                    if random.random() < 0.2:
+                        actions.append(self.get_random_action(game))
+
 
                     task['actions'] = actions
                     task['range_from'] = len(next_games)
