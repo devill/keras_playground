@@ -20,7 +20,7 @@ class Gomoku:
     def draw(self):
         plt.imshow(self.board)
 
-    def char_draw(self):
+    def char_draw_as_string(self):
         board_string = '*'*(2*self.board.shape[0]+2) + "\n"
         for i in range(self.board.shape[1]):
             board_string += '*'
@@ -33,8 +33,10 @@ class Gomoku:
                     board_string += '. '
             board_string += "*\n"
         board_string += '*'*(2*self.board.shape[0]+2) + "\n"
+        return board_string
 
-        print(board_string)
+    def char_draw(self):
+        print(self.char_draw_as_string())
 
 
 
