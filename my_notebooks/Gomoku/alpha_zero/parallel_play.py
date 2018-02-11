@@ -8,8 +8,9 @@ import os
 import random
 
 shape = (19,19)
-batch_size = 16
-model = load_model('/data/trained_models/gomoku_alpha_zero/gomoku_alpha_zero_resnet_full_model_v6.h5')
+batch_size = 8
+round_batch_size = 64
+model = load_model('/data/trained_models/gomoku_alpha_zero/v2/gomoku_alpha_zero_resnet_full_model_1.h5')
 
 def action_to_onehot(action):
     result = np.zeros(shape)
@@ -48,32 +49,33 @@ def display_games(games):
 iterations = 0
 
 while True:
-    games = [Gomoku(shape) for _ in range(batch_size)]
     histories = [[] for _ in range(batch_size)]
-
-    lmodel = LearnedGomokuModel(model)
-    tree_search = ParallelMonteCarloTreeSearch(LearnedGomokuModel(model), 2, 6)
     results = []
 
-
-
-    os.system('clear')
-    display_games(games[0:4])
-    display_games(games[4:8])
-    while not games_over(games):
-        outcomes, actions = tree_search.search(games)
-        results.append({'outcome':outcomes[0], 'action':actions[0]})
-        for i in range(len(games)):
-            if not games[i].game_over():
-                games[i].take_action(actions[i])
-                histories[i].append({
-                    'outcome':outcomes[i],
-                    'action':actions[i]
-                })
+    for r in range(round_batch_size):
+        games = [Gomoku(shape) for _ in range(batch_size)]
+        lmodel = LearnedGomokuModel(model)
+        tree_search = ParallelMonteCarloTreeSearch(LearnedGomokuModel(model), 4, 4)
 
         os.system('clear')
+        print(iterations, r)
         display_games(games[0:4])
         display_games(games[4:8])
+        while not games_over(games):
+            outcomes, actions = tree_search.search(games)
+            results.append({'outcome':outcomes[0], 'action':actions[0]})
+            for i in range(len(games)):
+                if not games[i].game_over():
+                    games[i].take_action(actions[i])
+                    histories[i].append({
+                        'outcome':outcomes[i],
+                        'action':actions[i]
+                    })
+
+            os.system('clear')
+            print(iterations, r)
+            display_games(games[0:4])
+            display_games(games[4:8])
 
 
     train_boards = []
@@ -110,11 +112,11 @@ while True:
         m.update(file_content.encode('utf-8'))
         h = m.hexdigest()
 
-        with open('/data/gomoku_alpha_zero/reinforcement_3/'+h+'.csv', 'w') as f:
+        with open('/data/gomoku_alpha_zero/reinforcement_4/'+h+'.csv', 'w') as f:
             f.write(file_content)
 
 
     iterations += 1
-    if iterations % 20 == 0:
-        model.save('/data/trained_models/gomoku_alpha_zero/gomoku_alpha_zero_resnet_full_model_v7_'+str(iterations)+'.h5')
-        model.save_weights('/data/trained_models/gomoku_alpha_zero/gomoku_alpha_zero_resnet_weights_v7_'+str(iterations)+'.h5')
+
+    model.save('/data/trained_models/gomoku_alpha_zero/v2/gomoku_alpha_zero_resnet_full_model_2_'+str(iterations)+'.h5')
+    model.save_weights('/data/trained_models/gomoku_alpha_zero/v2/gomoku_alpha_zero_resnet_weights_2_'+str(iterations)+'.h5')

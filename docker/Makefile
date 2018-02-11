@@ -8,6 +8,7 @@ DOCKER=GPU=$(GPU) nvidia-docker
 BACKEND=tensorflow
 TEST=tests/
 SRC=$(shell dirname `pwd`)
+#SRC=$(shell cd ../..; pwd)
 
 build:
 	docker build -t keras --build-arg python_version=3.5 -f $(DOCKER_FILE) .

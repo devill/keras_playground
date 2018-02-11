@@ -72,7 +72,7 @@ class ParallelMonteCarloTreeSearch:
                     actions = choice2d(pmap, self.max_branching - 1)
                     actions.append(np.unravel_index(np.argmax(pmap), pmap.shape))
 
-                    if random.random() < 0.2:
+                    if random.random() < 0.01:
                         actions.append(self.get_random_action(game))
 
 
@@ -93,7 +93,7 @@ class ParallelMonteCarloTreeSearch:
 
             for task in tasks:
                 if task['task'] == 'take_action':
-                    best_outcomes.append(-1*min(outcomes[task['range_from']:task['range_to']]))
+                    best_outcomes.append(-0.95*min(outcomes[task['range_from']:task['range_to']]))
                     best_actions.append(task['actions'][np.argmin(outcomes[task['range_from']:task['range_to']])])
                 else:
                     best_outcomes.append(task['result'])
